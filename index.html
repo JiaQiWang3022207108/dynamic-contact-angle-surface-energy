@@ -3,63 +3,62 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>动态接触角 · 表面能计算器</title>
+    <meta name="description" content="基于前进动态接触角的 OWRK 表面能计算器" />
+    <title>表面能计算器</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <header class="topbar">
-        <a class="brand" href="#top" aria-label="表面能计算器首页"><span class="brand-mark">γ</span><span>surface.lab</span></a>
-        <div class="method-tag">OWRK / 动态接触角</div>
-      </header>
+    <main class="calculator">
+      <header class="brand"><span class="brand-mark">γ</span><span>surface.energy</span></header>
 
-      <section class="hero" id="top">
-        <p class="eyebrow">SURFACE SCIENCE TOOL</p>
-        <h1>由动态接触角，<br /><em>估算表面能。</em></h1>
-        <p>输入至少两种已知表面张力分量的测试液体。前进角与后退角将分别参与拟合，得到样品的表面能范围。</p>
+      <section class="intro">
+        <p class="eyebrow">OWRK / 前进动态接触角</p>
+        <h1>表面能计算器</h1>
+        <p>填写两种测试液的前进动态接触角，计算样品表面能及其色散、极性分量。</p>
       </section>
 
-      <section class="card input-card" aria-labelledby="liquid-title">
-        <div class="section-heading">
-          <div><p class="step">01 / 测量数据</p><h2 id="liquid-title">测试液与接触角</h2></div>
-          <button class="secondary-button" id="addLiquid" type="button">+ 添加液体</button>
+      <form id="calculatorForm" class="card input-card" novalidate>
+        <div class="section-title">
+          <div><p class="step">输入数据</p><h2>前进动态接触角</h2></div>
+          <span>单位：°</span>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>测试液</th><th>总表面张力 γ<sub>L</sub></th><th>色散 γ<sub>L</sub><sup>d</sup></th><th>极性 γ<sub>L</sub><sup>p</sup></th><th>前进角 θ<sub>A</sub></th><th>后退角 θ<sub>R</sub></th><th></th></tr></thead>
-            <tbody id="liquidRows"></tbody>
-          </table>
+
+        <div class="angle-fields">
+          <label class="angle-field" for="waterAngle">
+            <span class="liquid-name">去离子水</span>
+            <small>γ<sub>L</sub> 72.8 · γ<sub>L</sub><sup>d</sup> 21.8 · γ<sub>L</sub><sup>p</sup> 51.0 mN/m</small>
+            <input id="waterAngle" inputmode="decimal" type="number" min="0" max="180" step="0.01" placeholder="请输入前进角" aria-describedby="waterHint" />
+            <em id="waterHint">前进动态接触角 θ<sub>A</sub></em>
+          </label>
+          <label class="angle-field" for="glycolAngle">
+            <span class="liquid-name">乙二醇</span>
+            <small>γ<sub>L</sub> 48.0 · γ<sub>L</sub><sup>d</sup> 29.0 · γ<sub>L</sub><sup>p</sup> 19.0 mN/m</small>
+            <input id="glycolAngle" inputmode="decimal" type="number" min="0" max="180" step="0.01" placeholder="请输入前进角" aria-describedby="glycolHint" />
+            <em id="glycolHint">前进动态接触角 θ<sub>A</sub></em>
+          </label>
         </div>
-        <p class="hint">单位：mN/m（或 mJ/m²）；角度单位：°。建议选择极性/色散比例差异较大的液体，以提高拟合可靠性。</p>
-        <div class="actions"><button class="primary-button" id="calculate" type="button">计算表面能 <span>→</span></button><button class="text-button" id="reset" type="button">恢复示例数据</button></div>
+
+        <button class="calculate-button" type="submit">计算表面能 <span>→</span></button>
         <p class="error" id="errorMessage" role="alert"></p>
-      </section>
+      </form>
 
-      <section class="results" id="results" aria-live="polite">
-        <div class="section-heading"><div><p class="step">02 / 计算结果</p><h2>样品表面能</h2></div><span class="status" id="fitStatus">等待计算</span></div>
+      <section class="card results" aria-live="polite" aria-labelledby="resultsTitle">
+        <div class="section-title">
+          <div><p class="step">计算结果</p><h2 id="resultsTitle">样品表面能</h2></div>
+          <span class="status" id="fitStatus">待计算</span>
+        </div>
         <div class="metric-grid">
-          <article class="metric total"><span>平均总表面能 γ<sub>S</sub></span><strong id="totalEnergy">—</strong><small>mN/m</small></article>
+          <article class="metric total"><span>总表面能 γ<sub>S</sub></span><strong id="totalEnergy">—</strong><small>mN/m</small></article>
           <article class="metric"><span>色散分量 γ<sub>S</sub><sup>d</sup></span><strong id="dispersiveEnergy">—</strong><small>mN/m</small></article>
           <article class="metric"><span>极性分量 γ<sub>S</sub><sup>p</sup></span><strong id="polarEnergy">—</strong><small>mN/m</small></article>
         </div>
-        <div class="dynamic-grid">
-          <div><span>前进角拟合</span><strong id="advancingEnergy">—</strong><small>mN/m</small></div>
-          <div><span>后退角拟合</span><strong id="recedingEnergy">—</strong><small>mN/m</small></div>
-          <div><span>接触角滞后（平均）</span><strong id="hysteresis">—</strong><small>°</small></div>
-        </div>
-        <p class="result-note" id="resultNote">填写数据后点击“计算表面能”。</p>
       </section>
 
-      <section class="card info-card">
-        <p class="step">METHOD NOTE</p><h2>OWRK 两组分拟合</h2>
-        <div class="formula">γ<sub>L</sub>(1 + cos θ) = 2(√γ<sub>S</sub><sup>d</sup>γ<sub>L</sub><sup>d</sup> + √γ<sub>S</sub><sup>p</sup>γ<sub>L</sub><sup>p</sup>)</div>
-        <p>页面以最小二乘法拟合多个液体的数据。前进角通常对应较低的表面能估计，后退角对应较高估计；结果仅供科研计算辅助，测试液参数请按实际温度与文献来源核对。</p>
-      </section>
+      <p class="footnote">按 OWRK 两组分模型计算；固定液体参数请按实际测试温度与文献来源核对。</p>
     </main>
-    <template id="rowTemplate"><tr><td><input class="name" aria-label="液体名称" /></td><td><input class="total" type="number" min="0" step="0.1" aria-label="总表面张力" /></td><td><input class="dispersive" type="number" min="0" step="0.1" aria-label="色散分量" /></td><td><input class="polar" type="number" min="0" step="0.1" aria-label="极性分量" /></td><td><input class="advancing" type="number" min="0" max="180" step="0.1" aria-label="前进角" /></td><td><input class="receding" type="number" min="0" max="180" step="0.1" aria-label="后退角" /></td><td><button class="remove" type="button" aria-label="删除此液体">×</button></td></tr></template>
     <script src="app.js"></script>
   </body>
 </html>
